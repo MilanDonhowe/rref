@@ -5,12 +5,21 @@
 <template>
 
     <div class="user-input">
-        
         <div class="grid">
+            <div class="notification is-warning" v-if="badEntries.length !== 0">
+                Error: there are invalid entries @ the following locations:
+                <div class="level-item">
+                    ({{badEntries[0][0]}}, {{badEntries[0][1]}})
+                    <div v-for="pair in badEntries.slice(1)" :key="badEntries.indexOf(pair)">
+                       , ({{pair[0]}}, {{pair[1]}})
+                    </div>
+                </div>
+            </div>
             <h3>{{rows}} by {{columns}} Matrix:</h3>            
+            <!--Matrix Display-->
             <div v-for="(row, row_index) in MatrixArray" :key="row_index" class="matrix-row">
                 <div v-for="(entry, col_index) in row" :key="col_index" class="matrix-entry">
-                    <input class="input is-normal box has-text-centered" v-model.number="MatrixArray[row_index][col_index]" type="number">
+                    <input class="input is-normal box has-text-centered" v-model="MatrixArray[row_index][col_index]" type="text">
                 </div>
             </div>
         </div>
@@ -29,16 +38,24 @@
 </template>
 
 <script>
-import {rref} from "./RowReduce.js";
+const Fraction = require('fraction.js');
+
+import {rref} from "../logic/RowReduce.js";
 
 export default {
     data(){
         return {
             MatrixArray: [],
+            badEntries: []
         }
     },
     methods:{
         reduce: function(){
+            // don't reduce if we have invalid entries
+            this.checkAllFractions();
+            if (this.badEntries.length !== 0) return;
+
+            // otherwise we should be ok to reduce
             let new_matrix = rref(this.MatrixArray);
             for (let i=0; i < new_matrix.length; i++){
                 this.$set(this.MatrixArray, i, new_matrix[i]);
@@ -49,6 +66,25 @@ export default {
                 for (let j=0; j < this.MatrixArray[0].length; j++){
                     this.$set(this.MatrixArray[i], j, 0);
                 }
+            }
+        },
+        checkAllFractions: function(){
+            // assume there are no bad entries at first
+            this.badEntries = [];
+
+            // now let's check if there are any bad existing entries
+            for (let y=0; y < this.MatrixArray.length; y++){
+                for (let x=0; x < this.MatrixArray[0].length; x++){
+                    this.checkFraction(x, y);
+                }
+            }
+        },
+        checkFraction: function(x, y){
+            try {
+                this.MatrixArray[y][x] = new Fraction(this.MatrixArray[y][x]);
+            } catch (Exception) {
+                console.log("Exception caught: ", Exception.message);
+                this.badEntries.push([x, y]);
             }
         }
     },

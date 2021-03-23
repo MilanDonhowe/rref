@@ -1,4 +1,14 @@
-/* Row Reduction */
+/* 
+    Row Reduction File
+    
+    This file handles the row-reduction
+    algorithm to get matrices in their row-reduced
+    echelon form.
+*/
+
+const Fraction = require('fraction.js');
+
+
 
 const ZERO_CUTOFF = 0.0001;
 
@@ -10,7 +20,8 @@ const ZERO_CUTOFF = 0.0001;
 // returns matrix[row] = matrix[row]*scalar
 function multRows(matrix, row, scalar){
     for (let i=0; i < matrix[row].length; i++){
-        matrix[row][i] *= scalar;
+        //matrix[row][i] *= scalar;
+        matrix[row][i] = matrix[row][i].mul(scalar);
     }
     return matrix;
 }
@@ -25,7 +36,8 @@ function swapRows(matrix, row1, row2){
 // returns matrix[row1] = matrix[row1] + (scalar*matrix[row2])
 function addRows(matrix, row1, row2, scalar){
     for (let i=0; i < matrix[row1].length; i++){
-        matrix[row1][i] += (scalar*matrix[row2][i]);
+        //matrix[row1][i] += (scalar*matrix[row2][i]);
+        matrix[row1][i] = matrix[row1][i].add(matrix[row2][i].mul(scalar));
     }
     return matrix;
 }
@@ -41,7 +53,7 @@ function addRows(matrix, row1, row2, scalar){
 // otherwise returns row index j of pivot position
 function find_pivot_position(matrix, row_start, col, ROW_MAX){
     let entry_i = row_start;
-    while (matrix[entry_i][col] == 0){
+    while (matrix[entry_i][col].equals(Fraction(0))){
         if (entry_i+1 >= ROW_MAX){
             return -1;
         }
@@ -54,12 +66,14 @@ function find_pivot_position(matrix, row_start, col, ROW_MAX){
 function get_target_below(matrix, row, col, ROW_MAX){
     let target = row+1;
     while (target < ROW_MAX){
-        if (Math.abs(matrix[target][col]) > ZERO_CUTOFF) return target;
+        if (matrix[target][col].abs().compare(Fraction(ZERO_CUTOFF)) > 0) return target;
+        //if (Math.abs(matrix[target][col]) > ZERO_CUTOFF) return target;
         target++;
     }
     return -1;
 }
 /* Round answers to what they come arbitrarily close to. */
+/*
 function arbitrary_correct(matrix){
     for (let i=0; i < matrix.length; i++){
         for (let j=0; j < matrix[0].length;j++){
@@ -69,12 +83,10 @@ function arbitrary_correct(matrix){
     }
     return matrix;
 }
-
+*/
 
 /* Row-Reduction Algorithm */
 export function rref(matrix){
-    //console.table(matrix);
-
     const ROW_MAX = matrix.length;
     const COL_MAX = matrix[0].length;
     // find first non-zero column entry (switching rows if necessary)
@@ -97,7 +109,8 @@ export function rref(matrix){
         let target = get_target_below(matrix, row_i, col_j, ROW_MAX);
 
         while (target != -1){
-            let zeroing_scalar = -(matrix[target][col_j])/(matrix[row_i][col_j]);
+            //let zeroing_scalar = -(matrix[target][col_j])/(matrix[row_i][col_j]);
+            let zeroing_scalar = (matrix[target][col_j].div(matrix[row_i][col_j])).mul(-1);
             matrix = addRows(matrix, target, row_i, zeroing_scalar);
             target = get_target_below(matrix, row_i, col_j, ROW_MAX);            
         }
@@ -105,20 +118,23 @@ export function rref(matrix){
         //now let's zero out all entries above the pivot position
         target = get_target_below(matrix, -1, col_j, ROW_MAX)
         while (target != row_i && target != -1){
-            let zeroing_scalar = -(matrix[target][col_j])/(matrix[row_i][col_j]);
+            //let zeroing_scalar = -(matrix[target][col_j])/(matrix[row_i][col_j]);
+            let zeroing_scalar = (matrix[target][col_j].div(matrix[row_i][col_j])).mul(-1);
+
             matrix = addRows(matrix, target, row_i, zeroing_scalar);
             target = get_target_below(matrix, 0, col_j, ROW_MAX);
         }
         
         // make sure pivot is 1 
-        if (matrix[row_i][col_j] != 1){
-            matrix = multRows(matrix, row_i, 1/matrix[row_i][col_j]);
+        if (matrix[row_i][col_j] != Fraction(1)){
+            //matrix = multRows(matrix, row_i, 1/matrix[row_i][col_j]);
+            matrix = multRows(matrix, row_i, Fraction(1, matrix[row_i][col_j]));
         }
 
         row_i++;
         col_j++;
     }
     
-
-    return arbitrary_correct(matrix);
+    return matrix;
+    //return arbitrary_correct(matrix);
 }

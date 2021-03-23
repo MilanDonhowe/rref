@@ -22,7 +22,6 @@
 </template>
 
 <script>
-//import HelloWorld from './components/HelloWorld.vue';
 import Matrix from "./components/Matrix.vue";
 
 export default {
@@ -54,4 +53,5 @@ export default {
   color: #2c3e50;
   margin-top: 60px;
 }
+
 </style>

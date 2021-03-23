@@ -1,7 +1,6 @@
 // Import bulma
 import './../node_modules/bulma/css/bulma.css';
 
-
 import Vue from 'vue'
 import App from './App.vue'
 
