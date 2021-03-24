@@ -50,12 +50,9 @@ let M3Solved = [
 
 
 /* Test Cases */
-test('Testing Matrix Reduction 1... (reduced form has fractions)', () => {
+test('Testing Matrix Reductions with rref()', () => {
     expect( SOLVE(M1) ).toStrictEqual(M1Solved);
-});
-test('Testing Matrix Reduction 2... (identity matrix)', () => {
     expect( SOLVE(M2) ).toStrictEqual(M2Solved);
-});
-test('Testing Matrix Reduction 3... (reduced form is integers)', () => {
     expect( SOLVE(M3) ).toStrictEqual(M3Solved);
 });
+
