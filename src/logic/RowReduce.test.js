@@ -46,13 +46,34 @@ let M3Solved = [
     ['0', '1', '1', '2']
 ]
 
+let M4 = [
+    ['0', '-3', '1', '-1'],
+    ['-2', '1', '0', '3']
+]
+let M4Solved = [
+    ['1', '0', '-1/6', '-4/3'],
+    ['0', '1', '-1/3', '1/3']
+]
 
+let M5 = [
+    ['8', '1',  '6'],
+    ['3', '5',  '7'],
+    ['4', '9',  '2']
+]
+
+let M5Solved = [
+    ['1', '0', '0'],
+    ['0', '1', '0'],
+    ['0', '0', '1']
+]
 
 
 /* Test Cases */
 test('Testing Matrix Reductions with rref()', () => {
-    expect( SOLVE(M1) ).toStrictEqual(M1Solved);
-    expect( SOLVE(M2) ).toStrictEqual(M2Solved);
-    expect( SOLVE(M3) ).toStrictEqual(M3Solved);
+    const problems = [M1, M2, M3, M4, M5];
+    const solutions = [M1Solved, M2Solved, M3Solved, M4Solved, M5Solved];
+    for (const [index, prob] of problems.entries()){
+        expect ( SOLVE(prob) ).toStrictEqual(solutions[index]);
+    }
 });
 
